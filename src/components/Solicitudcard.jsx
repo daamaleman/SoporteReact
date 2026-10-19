@@ -1,9 +1,9 @@
 export default function SolicitudCard({ titulo, prioridad, estado }) {
     return (
-        <article style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0', borderRadius: '5px' }}>
+        <article style={{ border: '1px solid #ccc', padding: '12px', margin: '12px 0', borderRadius: '6px', textAlign: 'left' }}>
             <h3>{titulo}</h3>
-            <p>Prioridad: {prioridad}</p>
-            <p>Estado: {estado}</p>
+            <p><strong>Prioridad:</strong> {prioridad}</p>
+            <p><strong>Estado:</strong> {estado}</p>
         </article>
     )
 }
