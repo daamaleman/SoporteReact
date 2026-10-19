@@ -1,69 +1,94 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import SolicitudCard from './components/SolicitudCard'
 
-function SolicitudCard({ titulo, prioridad, estado }) {
-    return (
-        <article style={{ border: '1px solid #ccc', padding: '12px', margin: '12px 0', borderRadius: '6px', textAlign: 'left' }}>
-            <h3>{titulo}</h3>
-            <p><strong>Prioridad:</strong> {prioridad}</p>
-            <p><strong>Estado:</strong> {estado}</p>
-        </article>
-    )
-}
+const iniciales = [
+    { id: 1, titulo: 'Equipo no enciende', prioridad: 'Alta', estado: 'Pendiente' },
+    { id: 2, titulo: 'Instalar software', prioridad: 'Media', estado: 'En proceso' }
+]
 
 function App() {
-    const nombreAsignatura = "Sistemas Informáticos"
-    const componentesRed = ["Hardware", "Software", "Redes"]
+    const [solicitudes, setSolicitudes] = useState(iniciales)
+    const [titulo, setTitulo] = useState('')
+    const [prioridad, setPrioridad] = useState('Media')
+    const [filtro, setFiltro] = useState('Todas')
+    const [mensaje, setMensaje] = useState('')
 
-    const mostrarNuevaAlerta = () => {
-        alert(`Estás cursando: ${nombreAsignatura}. ¡Mucho éxito!`)
+    function agregar(e) {
+        e.preventDefault()
+        if (!titulo.trim()) {
+            setMensaje('Escribe una descripción de la solicitud.')
+            return
+        }
+        const nueva = {
+            id: crypto.randomUUID(),
+            titulo: titulo.trim(),
+            prioridad,
+            estado: 'Pendiente'
+        }
+        setSolicitudes(actuales => [...actuales, nueva])
+        setTitulo('')
+        setMensaje('Solicitud agregada correctamente.')
     }
 
+    const visibles = solicitudes.filter(s =>
+        filtro === 'Todas' || s.estado === filtro
+    )
+
     return (
-        <main>
-            <h1>Sistema de Soporte Técnico</h1>
-            <h2>Mi primera aplicación con React</h2>
-            <p>Bienvenido al sistema de solicitudes.</p>
+        <main style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+            <h1>Gestión de solicitudes</h1>
+            <p>Total registradas: {solicitudes.length}</p>
 
-            {/* Microreto A: Información de la Asignatura */}
-            <section style={{ marginBottom: '25px', borderBottom: '1px dashed #555', paddingBottom: '20px' }}>
-                <h3>Asignatura: {nombreAsignatura}</h3>
-
-                <ul style={{ textAlign: 'left', display: 'inline-block' }}>
-                    {componentesRed.map((item, index) => (
-                        <li key={index}>{item}</li>
-                    ))}
-                </ul>
-
-                <div style={{ marginTop: '15px' }}>
-                    <button onClick={() => alert('Bienvenido a React')}>
-                        Comenzar
-                    </button>
-
-                    <button onClick={mostrarNuevaAlerta} style={{ marginLeft: '10px' }}>
-                        Ver Info Asignatura
-                    </button>
-                </div>
-            </section>
-
-            <section style={{ marginTop: '20px' }}>
-                <h2>Solicitudes de soporte</h2>
-
-                <SolicitudCard
-                    titulo="Equipo no enciende"
-                    prioridad="Alta"
-                    estado="Pendiente"
+            <form onSubmit={agregar} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                <label htmlFor="titulo">Descripción</label>
+                <input
+                    id="titulo"
+                    value={titulo}
+                    onChange={e => setTitulo(e.target.value)}
+                    style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
 
-                <SolicitudCard
-                    titulo="Instalar software"
-                    prioridad="Media"
-                    estado="En proceso"
-                />
-            </section>
+                <label htmlFor="prioridad">Prioridad</label>
+                <select
+                    id="prioridad"
+                    value={prioridad}
+                    onChange={e => setPrioridad(e.target.value)}
+                    style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                >
+                    <option>Alta</option>
+                    <option>Media</option>
+                    <option>Baja</option>
+                </select>
+
+                <button type="submit" style={{ padding: '10px', cursor: 'pointer', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px' }}>
+                    Registrar
+                </button>
+            </form>
+
+            <p role="status" style={{ fontWeight: 'bold', color: mensaje.includes('correctamente') ? 'green' : 'red' }}>
+                {mensaje}
+            </p>
+
+            <div style={{ margin: '20px 0' }}>
+                <label htmlFor="filtro" style={{ marginRight: '10px' }}>Filtrar por estado</label>
+                <select
+                    id="filtro"
+                    value={filtro}
+                    onChange={e => setFiltro(e.target.value)}
+                    style={{ padding: '6px', borderRadius: '4px' }}
+                >
+                    <option>Todas</option>
+                    <option>Pendiente</option>
+                    <option>En proceso</option>
+                    <option>Resuelta</option>
+                </select>
+            </div>
+
+            {visibles.length === 0 ? (
+                <p>No hay resultados.</p>
+            ) : (
+                visibles.map(s => <SolicitudCard key={s.id} {...s} />)
+            )}
         </main>
     )
 }
