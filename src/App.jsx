@@ -13,6 +13,15 @@ function App() {
     const [filtro, setFiltro] = useState('Todas')
     const [mensaje, setMensaje] = useState('')
 
+    function resolverSolicitud(id) {
+        setSolicitudes(actuales =>
+            actuales.map(s =>
+                s.id === id ? { ...s, estado: 'Resuelta' } : s
+            )
+        )
+        setMensaje('Solicitud marcada como resuelta.')
+    }
+
     function agregar(e) {
         e.preventDefault()
         if (!titulo.trim()) {
@@ -34,10 +43,14 @@ function App() {
         filtro === 'Todas' || s.estado === filtro
     )
 
+    const pendientesCount = solicitudes.filter(s => s.estado === 'Pendiente').length
+
     return (
         <main style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
             <h1>Gestión de solicitudes</h1>
             <p>Total registradas: {solicitudes.length}</p>
+
+            <p style={{ color: '#dc3545', fontWeight: 'bold' }}>Solicitudes Pendientes: {pendientesCount}</p>
 
             <form onSubmit={agregar} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
                 <label htmlFor="titulo">Descripción</label>
@@ -65,7 +78,7 @@ function App() {
                 </button>
             </form>
 
-            <p role="status" style={{ fontWeight: 'bold', color: mensaje.includes('correctamente') ? 'green' : 'red' }}>
+            <p role="status" style={{ fontWeight: 'bold', color: mensaje.includes('correctamente') || mensaje.includes('resuelta') ? 'green' : 'red' }}>
                 {mensaje}
             </p>
 
@@ -87,7 +100,13 @@ function App() {
             {visibles.length === 0 ? (
                 <p>No hay resultados.</p>
             ) : (
-                visibles.map(s => <SolicitudCard key={s.id} {...s} />)
+                visibles.map(s => (
+                    <SolicitudCard
+                        key={s.id}
+                        {...s}
+                        onResolver={resolverSolicitud}
+                    />
+                ))
             )}
         </main>
     )
